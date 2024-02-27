@@ -7,18 +7,31 @@ import {
   Dimensions,
   Animated,
   PanResponder,
+  TouchableOpacity,
 } from 'react-native';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 
 export default function Card({ cats }: any) {
   const [state, setState] = useState({ currentIndex: 0 });
+  const [expanded, setExpanded] = useState(false);
+
   const SCREEN_HEIGHT = Dimensions.get('window').height;
+
   const SCREEN_WIDTH = Dimensions.get('window').width;
+
   let position = new Animated.ValueXY();
+
+  const expandIcon = expanded ? 'upcircle' : 'downcircle';
+
+  const noIcon = 'close-circle-outline';
+  const yesIcon = 'heart-circle-outline';
+
   const rotate = position.x.interpolate({
     inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
     outputRange: ['-10deg', '0deg', '10deg'],
     extrapolate: 'clamp',
   });
+
   const rotateAndTranslate = {
     transform: [
       {
@@ -88,6 +101,36 @@ export default function Card({ cats }: any) {
     },
   });
 
+  const toggleExpand = () => {
+    setExpanded(!expanded);
+  };
+
+  const noClick = () => {
+    Animated.timing(position, {
+      toValue: { x: -SCREEN_WIDTH - 100, y: 0 },
+      duration: 100,
+      useNativeDriver: true,
+    }).start(() => {
+      setState((prevState) => ({
+        currentIndex: prevState.currentIndex + 1,
+      }));
+      position.setValue({ x: 0, y: 0 });
+    });
+  };
+
+  const yesClick = () => {
+    Animated.timing(position, {
+      toValue: { x: SCREEN_WIDTH + 100, y: 0 },
+      duration: 100,
+      useNativeDriver: true,
+    }).start(() => {
+      setState((prevState) => ({
+        currentIndex: prevState.currentIndex + 1,
+      }));
+      position.setValue({ x: 0, y: 0 });
+    });
+  };
+
   function renderCats() {
     return cats
       .map((item: any, i: number) => {
@@ -119,10 +162,46 @@ export default function Card({ cats }: any) {
                 <Text style={styles.nopeText}>NOPE</Text>
               </Animated.View>
               <Image style={styles.image} source={item.image} />
+              {!expanded && (
+                <View style={styles.iconContainer}>
+                  <View>
+                    <TouchableOpacity onPress={noClick}>
+                      <Ionicons
+                        name={noIcon}
+                        size={90}
+                        color='#ff6666'
+                        style={styles.icon}
+                      />
+                      <View style={styles.iconBackground} />
+                    </TouchableOpacity>
+                  </View>
+                  <View>
+                    <TouchableOpacity onPress={yesClick}>
+                      <Ionicons
+                        name={yesIcon}
+                        size={90}
+                        color='#00b300'
+                        style={styles.icon}
+                      />
+                      <View style={styles.iconBackground} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
               <View style={styles.textContainer}>
-                <Text style={styles.imageText}>
-                  {item.name}, {item.age}
-                </Text>
+                <View style={styles.textRow}>
+                  <Text style={styles.imageText}>
+                    {item.name}, {item.age}
+                  </Text>
+                  <TouchableOpacity onPress={toggleExpand}>
+                    <AntDesign name={expandIcon} size={40} color='#ff6666' />
+                  </TouchableOpacity>
+                </View>
+                {expanded && (
+                  <View style={styles.descriptionContainer}>
+                    <Text>{item.description}</Text>
+                  </View>
+                )}
               </View>
             </Animated.View>
           );
@@ -157,12 +236,16 @@ export default function Card({ cats }: any) {
 }
 
 const styles = StyleSheet.create({
+  descriptionContainer: {
+    maxHeight: 100,
+  },
   image: {
     flex: 1,
     height: null,
     width: null,
     resizeMode: 'cover',
     borderRadius: 20,
+    zIndex: 1,
   },
   likeTextView: {
     transform: [{ rotate: '-30deg' }],
@@ -197,14 +280,49 @@ const styles = StyleSheet.create({
   textContainer: {
     position: 'absolute',
     bottom: 0,
-    left: 0,
+    left: 10,
     right: 0,
     backgroundColor: 'white',
     padding: 10,
+    width: '100%',
+    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 20,
+    zIndex: 1,
+  },
+  textRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   imageText: {
     color: 'black',
     fontSize: 20,
-    fontWeight: 'bold'
+    fontWeight: 'bold',
+  },
+  iconContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: '3%',
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    backgroundColor: 'transparent',
+    zIndex: 20,
+  },
+  iconBackground: {
+    position: 'absolute',
+    width: '90%',
+    height: '90%',
+    left: 0,
+    right: 0,
+    bottom: '3%',
+    backgroundColor: 'white',
+    borderRadius: 50,
+    borderColor: '#f2f2f2',
+    shadowColor: '#f2f2f2',
+  },
+  icon: {
+    zIndex: 25,
   },
 });

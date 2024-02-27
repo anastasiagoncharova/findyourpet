@@ -1,55 +1,41 @@
-import React from 'react'
-import {createStackNavigator} from '@react-navigation/stack'
-import {NavigationContainer} from '@react-navigation/native'
-import {createDrawerNavigator, DrawerNavigationOptions } from '@react-navigation/drawer' 
+import React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
 import HomeScreen from '../screens/Home/Home';
-import DrawerContainer from '../screens/DrawerContainer/DrawerContainer';
+import MessagesScreen from '../screens/MessagesScreen/MessagesScreen';
+import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 
-const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
 
-function MainNavigator() {
+function TabNavigator() {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerTitleStyle: {
-          fontWeight: 'bold',
-          textAlign: 'center',
-          alignSelf: 'center',
-          flex: 1,
-        }
-      }}
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        tabBarIcon: ({ focused, color, size }) => {
+          let iconName;
+          if (route.name === 'Home') {
+            iconName = focused ? 'home' : 'home-outline';
+          } else if (route.name === 'Messages') {
+            iconName = focused ? 'chatbubbles' : 'chatbubbles-outline';
+          } else if (route.name === 'Profile') {
+            iconName = focused ? 'person' : 'person-outline';
+          }
+          return <Ionicons name={iconName as any} size={size} color={color} />;
+        },
+      })}
     >
-      <Stack.Screen name='Home' component={HomeScreen} />
-    </Stack.Navigator>
-  );
-}
-
-const Drawer = createDrawerNavigator();
-
-function DrawerStack() {
-  const drawerOptions: DrawerNavigationOptions | any = {
-    drawerPosition: 'left',
-    initialRouteName: 'Main',
-    drawerStyle: {
-      width: 250
-    },
-    drawerContent: ({ navigation }: any) => <DrawerContainer navigation={navigation} />,
-  };
-
-  return (
-    <Drawer.Navigator
-      screenOptions={{ headerShown: false }}
-      {...drawerOptions}
-    >
-      <Drawer.Screen name='Main' component={MainNavigator} />
-    </Drawer.Navigator>
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Messages" component={MessagesScreen} />
+      <Tab.Screen name="Profile" component={ProfileScreen} />
+    </Tab.Navigator>
   );
 }
 
 const AppContainer: React.FC = () => {
   return (
     <NavigationContainer>
-      <DrawerStack />
+      <TabNavigator />
     </NavigationContainer>
   );
 }

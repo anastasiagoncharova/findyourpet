@@ -1,25 +1,10 @@
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import { useSelector } from 'react-redux';
-import { FlatList, Text, View, StyleSheet, Image } from "react-native";
-import MenuImage from "../../components/MenuImage/MenuImage";
+import { View } from "react-native";
 import Card from "../../components/Card/Card";
 
-export default function HomeScreen(props: any) {
-  const { navigation } = props;
+export default function HomeScreen() {
   const cats = useSelector((state: any) => state.cats.cats);
-
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => (
-        <MenuImage
-          onPress={() => {
-            navigation.openDrawer();
-          }}
-        />
-      ),
-      headerRight: () => <View />,
-    });
-  }, []);
 
   return (
     <View>
