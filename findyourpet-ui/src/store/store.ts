@@ -1,9 +1,9 @@
 import { configureStore } from '@reduxjs/toolkit';
-import catsReducer from './catsSlice';
+import petsReducer from './petsSlice';
 
 const store = configureStore({
   reducer: {
-    cats: catsReducer,
+    pets: petsReducer,
   },
 });
 

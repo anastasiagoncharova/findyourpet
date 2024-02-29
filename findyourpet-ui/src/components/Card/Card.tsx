@@ -9,11 +9,14 @@ import {
   PanResponder,
   TouchableOpacity,
 } from 'react-native';
+import { useDispatch } from 'react-redux';
+import { addSelectedPets } from '../../store/petsSlice';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 
-export default function Card({ cats }: any) {
+export default function Card({ pets }: any) {
   const [state, setState] = useState({ currentIndex: 0 });
   const [expanded, setExpanded] = useState(false);
+  const dispatch = useDispatch();
 
   const SCREEN_HEIGHT = Dimensions.get('window').height;
 
@@ -24,7 +27,10 @@ export default function Card({ cats }: any) {
   const expandIcon = expanded ? 'upcircle' : 'downcircle';
 
   const noIcon = 'close-circle-outline';
+
   const yesIcon = 'heart-circle-outline';
+
+  const returnIcon = 'arrow-undo-circle-outline';
 
   const rotate = position.x.interpolate({
     inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
@@ -71,6 +77,7 @@ export default function Card({ cats }: any) {
       position.setValue({ x: gestureState.dx, y: gestureState.dy });
     },
     onPanResponderRelease: (evt, gestureState) => {
+      dispatch(addSelectedPets(pets[state.currentIndex]));
       if (gestureState.dx > 120) {
         Animated.spring(position, {
           toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy },
@@ -105,6 +112,18 @@ export default function Card({ cats }: any) {
     setExpanded(!expanded);
   };
 
+  const returnClick = () => {
+    Animated.spring(position, {
+      toValue: { x: 0, y: 0 },
+      useNativeDriver: true,
+      friction: 4,
+    }).start(() => {
+      setState((prevState) => ({
+        currentIndex: prevState.currentIndex - 1,
+      }));
+    });
+  };
+
   const noClick = () => {
     Animated.timing(position, {
       toValue: { x: -SCREEN_WIDTH - 100, y: 0 },
@@ -119,6 +138,7 @@ export default function Card({ cats }: any) {
   };
 
   const yesClick = () => {
+    dispatch(addSelectedPets(pets[state.currentIndex]));
     Animated.timing(position, {
       toValue: { x: SCREEN_WIDTH + 100, y: 0 },
       duration: 100,
@@ -131,8 +151,8 @@ export default function Card({ cats }: any) {
     });
   };
 
-  function renderCats() {
-    return cats
+  function renderPets() {
+    return pets
       .map((item: any, i: number) => {
         if (i < state.currentIndex) {
           return null;
@@ -164,11 +184,24 @@ export default function Card({ cats }: any) {
               <Image style={styles.image} source={item.image} />
               {!expanded && (
                 <View style={styles.iconContainer}>
+                  {state.currentIndex > 0 && (
+                    <View>
+                      <TouchableOpacity onPress={returnClick}>
+                        <Ionicons
+                          name={returnIcon}
+                          size={60}
+                          color='#ffc266'
+                          style={styles.icon}
+                        />
+                        <View style={styles.iconBackground} />
+                      </TouchableOpacity>
+                    </View>
+                  )}
                   <View>
                     <TouchableOpacity onPress={noClick}>
                       <Ionicons
                         name={noIcon}
-                        size={90}
+                        size={70}
                         color='#ff6666'
                         style={styles.icon}
                       />
@@ -179,7 +212,7 @@ export default function Card({ cats }: any) {
                     <TouchableOpacity onPress={yesClick}>
                       <Ionicons
                         name={yesIcon}
-                        size={90}
+                        size={70}
                         color='#00b300'
                         style={styles.icon}
                       />
@@ -232,7 +265,7 @@ export default function Card({ cats }: any) {
       })
       .reverse();
   }
-  return <View style={{ flex: 1 }}>{renderCats()}</View>;
+  return <View style={{ flex: 1 }}>{renderPets()}</View>;
 }
 
 const styles = StyleSheet.create({
@@ -283,7 +316,8 @@ const styles = StyleSheet.create({
     left: 10,
     right: 0,
     backgroundColor: 'white',
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 30,
     width: '100%',
     borderBottomRightRadius: 20,
     borderBottomLeftRadius: 20,
@@ -303,7 +337,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 0,
     right: 0,
-    bottom: '3%',
+    bottom: '9%',
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',

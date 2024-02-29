@@ -4,11 +4,11 @@ import { View } from "react-native";
 import Card from "../../components/Card/Card";
 
 export default function HomeScreen() {
-  const cats = useSelector((state: any) => state.cats.cats);
+  const pets = useSelector((state: any) => state.pets.pets);
 
   return (
     <View>
-      <Card cats={cats}></Card>
+      <Card pets={pets}></Card>
     </View>
   );
 }
