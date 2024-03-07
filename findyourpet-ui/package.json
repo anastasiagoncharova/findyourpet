@@ -11,6 +11,7 @@
   "dependencies": {
     "@expo/config-plugins": "7.2.2",
     "@expo/webpack-config": "^19.0.0",
+    "@ptomasroos/react-native-multi-slider": "^2.2.2",
     "@react-native-picker/picker": "2.4.10",
     "@react-navigation/bottom-tabs": "^6.5.12",
     "@react-navigation/drawer": "^6.5.0",
