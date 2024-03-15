@@ -7,6 +7,7 @@ import HomeScreen from '../screens/Home/Home';
 import MessagesScreen from '../screens/MessagesScreen/MessagesScreen';
 import ProfileScreen from '../screens/ProfileScreen/ProfileScreen';
 import DetailsScreen from '../screens/DetailsScreen/DetailsScreen';
+import AdminScreen from '../screens/AdminScreen/AdminScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -35,11 +36,22 @@ function TabNavigator() {
   );
 }
 
+function getCurrentUser() {
+  return {
+    isAdmin: true
+  }
+}
+
 const AppContainer: React.FC = () => {
+  const user = getCurrentUser();
   return (
     <NavigationContainer>
       <Stack.Navigator>
-        <Stack.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }} />
+        {user.isAdmin ? (
+          <Stack.Screen name="Admin" component={AdminScreen} />
+        ) : (
+          <Stack.Screen name="TabNavigator" component={TabNavigator} options={{ headerShown: false }} />
+        )}
         <Stack.Screen name="Details" component={DetailsScreen} />
       </Stack.Navigator>
     </NavigationContainer>

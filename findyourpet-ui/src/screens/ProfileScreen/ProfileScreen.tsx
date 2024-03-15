@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, Button, StyleSheet } from 'react-native';
+import { petTypeMap, genderMap, vaccinatedMap, sterilizedMap } from '../../models/Checkbox';
 import UserData from '../../components/UserData/UserData';
 import Slider from '../../components/Slider/Slider';
 import Checkbox from '../../components/Checkbox/Checkbox';
@@ -11,11 +12,6 @@ export default function ProfileScreen() {
   const [sterilized, setSterilized] = useState(true);
   const [ageSliderValue, setAgeSliderValue] = useState([0, 30]);
   const [locationSliderValue, setLocationSliderValue] = useState([0, 600]);
-
-  const petTypeMap = [{ name: 'cats' }, { name: 'dogs' }, { name: 'both' }];
-  const genderMap = [{ name: 'male' }, { name: 'female' }, { name: 'both' }];
-  const vaccinatedMap = [{ name: 'yes' }, { name: 'no' }];
-  const sterilizedMap = [{ name: 'yes' }, { name: 'no' }];
 
   const handleTypeChange = (item: any) => {
     setSelectedType(item);
