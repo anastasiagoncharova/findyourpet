@@ -9,13 +9,14 @@ import {
   PanResponder,
   TouchableOpacity,
 } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addSelectedPets } from '../../store/petsSlice';
 import { AntDesign, Ionicons } from '@expo/vector-icons';
 
 export default function Card({ pets }: any) {
   const [state, setState] = useState({ currentIndex: 0 });
   const [expanded, setExpanded] = useState(false);
+  const selectedPets = useSelector((state: any) => state.pets.selectedPets);
   const dispatch = useDispatch();
 
   const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -77,8 +78,14 @@ export default function Card({ pets }: any) {
       position.setValue({ x: gestureState.dx, y: gestureState.dy });
     },
     onPanResponderRelease: (evt, gestureState) => {
-      dispatch(addSelectedPets(pets[state.currentIndex]));
       if (gestureState.dx > 120) {
+        if (
+          !selectedPets.some(
+            (pet: any) => pet.id === pets[state.currentIndex].id
+          )
+        ) {
+          dispatch(addSelectedPets(pets[state.currentIndex]));
+        }
         Animated.spring(position, {
           toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy },
           useNativeDriver: true,
@@ -138,7 +145,11 @@ export default function Card({ pets }: any) {
   };
 
   const yesClick = () => {
-    dispatch(addSelectedPets(pets[state.currentIndex]));
+    if (
+      !selectedPets.some((pet: any) => pet.id === pets[state.currentIndex].id)
+    ) {
+      dispatch(addSelectedPets(pets[state.currentIndex]));
+    }
     Animated.timing(position, {
       toValue: { x: SCREEN_WIDTH + 100, y: 0 },
       duration: 100,
@@ -148,6 +159,16 @@ export default function Card({ pets }: any) {
         currentIndex: prevState.currentIndex + 1,
       }));
       position.setValue({ x: 0, y: 0 });
+    });
+  };
+
+  const handleReloadAll = () => {
+    Animated.spring(position, {
+      toValue: { x: 0, y: 0 },
+      useNativeDriver: true,
+      friction: 4,
+    }).start(() => {
+      setState({ currentIndex: 0 });
     });
   };
 
@@ -232,6 +253,35 @@ export default function Card({ pets }: any) {
                 </View>
                 {expanded && (
                   <View style={styles.descriptionContainer}>
+                    <Text>
+                      {item.gender.charAt(0).toUpperCase() +
+                        item.gender.slice(1)}{' '}
+                      {item.type}
+                    </Text>
+                    <Text>
+                      {item.vaccinated ? 'Vaccinated ' : 'Not vaccinated '}
+                      <Ionicons
+                        name={
+                          item.vaccinated
+                            ? 'ios-checkmark-circle'
+                            : 'ios-close-circle'
+                        }
+                        size={20}
+                        color={item.vaccinated ? 'green' : 'red'}
+                      />
+                    </Text>
+                    <Text>
+                      {item.sterilized ? 'Sterilized ' : 'Not sterilized '}
+                      <Ionicons
+                        name={
+                          item.sterilized
+                            ? 'ios-checkmark-circle'
+                            : 'ios-close-circle'
+                        }
+                        size={20}
+                        color={item.sterilized ? 'green' : 'red'}
+                      />
+                    </Text>
                     <Text>{item.description}</Text>
                   </View>
                 )}
@@ -265,10 +315,38 @@ export default function Card({ pets }: any) {
       })
       .reverse();
   }
-  return <View style={{ flex: 1 }}>{renderPets()}</View>;
+  return (
+    <View style={styles.container}>
+      {state.currentIndex >= pets.length && (
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={handleReloadAll}
+          >
+            <Text>Reload all pets</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+      {renderPets()}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
+  container: {
+    display: 'flex'
+  },
+  buttonContainer: {
+    margin: 'auto'
+  },
+  button: {
+    backgroundColor: '#007bff',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    marginTop: 200,
+    alignSelf: 'center',
+    borderRadius: 5,
+  },
   descriptionContainer: {
     maxHeight: 100,
   },
